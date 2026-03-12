@@ -15,7 +15,14 @@ function createToken(user) {
 }
 
 function validateSignupBody(body) {
-  const requiredFields = ["displayName", "partnerName", "email", "password", "relationshipStartDate"];
+  const requiredFields = [
+    "displayName",
+    "partnerName",
+    "partnerEmail",
+    "email",
+    "password",
+    "relationshipStartDate"
+  ];
 
   for (const field of requiredFields) {
     if (!body[field]) {
@@ -39,6 +46,7 @@ router.post("/signup", async (req, res, next) => {
     }
 
     const email = String(req.body.email).toLowerCase().trim();
+    const partnerEmail = String(req.body.partnerEmail).toLowerCase().trim();
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -49,6 +57,7 @@ router.post("/signup", async (req, res, next) => {
     const user = await User.create({
       displayName: req.body.displayName.trim(),
       partnerName: req.body.partnerName.trim(),
+      partnerEmail,
       email,
       passwordHash,
       relationshipStartDate: req.body.relationshipStartDate,
@@ -109,6 +118,10 @@ router.put("/profile", requireAuth, async (req, res, next) => {
 
     if (req.body.partnerName) {
       updates.partnerName = req.body.partnerName.trim();
+    }
+
+    if (typeof req.body.partnerEmail === "string") {
+      updates.partnerEmail = req.body.partnerEmail.toLowerCase().trim();
     }
 
     if (req.body.relationshipStartDate) {

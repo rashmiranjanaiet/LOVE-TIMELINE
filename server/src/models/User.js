@@ -12,6 +12,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    partnerEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: ""
+    },
     email: {
       type: String,
       required: true,
@@ -42,6 +48,7 @@ userSchema.methods.toSafeProfile = function toSafeProfile() {
     id: this._id.toString(),
     displayName: this.displayName,
     partnerName: this.partnerName,
+    partnerEmail: this.partnerEmail,
     email: this.email,
     relationshipStartDate: this.relationshipStartDate,
     loveMessageOptIn: this.loveMessageOptIn,

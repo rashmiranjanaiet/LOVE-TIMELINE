@@ -6,6 +6,7 @@ import { useAuth } from "../auth-context.jsx";
 const initialSignupState = {
   displayName: "",
   partnerName: "",
+  partnerEmail: "",
   email: "",
   password: "",
   relationshipStartDate: "",
@@ -100,6 +101,17 @@ export default function AuthPage() {
                   value={signupForm.partnerName}
                   onChange={(event) =>
                     setSignupForm((current) => ({ ...current, partnerName: event.target.value }))
+                  }
+                />
+              </label>
+              <label>
+                Partner email
+                <input
+                  required
+                  type="email"
+                  value={signupForm.partnerEmail}
+                  onChange={(event) =>
+                    setSignupForm((current) => ({ ...current, partnerEmail: event.target.value }))
                   }
                 />
               </label>

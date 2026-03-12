@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const [profileForm, setProfileForm] = useState(() => ({
     displayName: user.displayName,
     partnerName: user.partnerName,
+    partnerEmail: user.partnerEmail || "",
     relationshipStartDate: toDateInputValue(user.relationshipStartDate),
     loveMessageOptIn: user.loveMessageOptIn
   }));
@@ -39,6 +40,7 @@ export default function DashboardPage() {
     setProfileForm({
       displayName: user.displayName,
       partnerName: user.partnerName,
+      partnerEmail: user.partnerEmail || "",
       relationshipStartDate: toDateInputValue(user.relationshipStartDate),
       loveMessageOptIn: user.loveMessageOptIn
     });
@@ -158,6 +160,7 @@ export default function DashboardPage() {
       setProfileForm({
         displayName: updatedUser.displayName,
         partnerName: updatedUser.partnerName,
+        partnerEmail: updatedUser.partnerEmail || "",
         relationshipStartDate: toDateInputValue(updatedUser.relationshipStartDate),
         loveMessageOptIn: updatedUser.loveMessageOptIn
       });
@@ -332,6 +335,16 @@ export default function DashboardPage() {
                   value={profileForm.partnerName}
                   onChange={(event) =>
                     setProfileForm((current) => ({ ...current, partnerName: event.target.value }))
+                  }
+                />
+              </label>
+              <label>
+                Partner email
+                <input
+                  type="email"
+                  value={profileForm.partnerEmail}
+                  onChange={(event) =>
+                    setProfileForm((current) => ({ ...current, partnerEmail: event.target.value }))
                   }
                 />
               </label>

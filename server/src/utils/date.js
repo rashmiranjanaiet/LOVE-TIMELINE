@@ -56,6 +56,20 @@ export function isSameMonthDay(a, b) {
   return dateA.getUTCMonth() === dateB.getUTCMonth() && dateA.getUTCDate() === dateB.getUTCDate();
 }
 
+function getNotificationEmail(user) {
+  const partnerEmail = String(user.partnerEmail || "")
+    .toLowerCase()
+    .trim();
+
+  if (partnerEmail) {
+    return partnerEmail;
+  }
+
+  return String(user.email || "")
+    .toLowerCase()
+    .trim();
+}
+
 export function buildAnniversaryReminder(user, now = new Date(), windowDays = 7) {
   const { anniversary, years } = getNextAnniversary(user.relationshipStartDate, now);
   const daysUntil = calculateDaysUntil(anniversary, now);
@@ -65,7 +79,7 @@ export function buildAnniversaryReminder(user, now = new Date(), windowDays = 7)
   }
 
   return {
-    email: user.email,
+    email: getNotificationEmail(user),
     displayName: user.displayName,
     partnerName: user.partnerName,
     years,
@@ -93,7 +107,7 @@ export function buildLoveMessagePayload(user, now = new Date()) {
       : `Another month of your story is on the calendar.`;
 
   return {
-    email: user.email,
+    email: getNotificationEmail(user),
     displayName: user.displayName,
     partnerName: user.partnerName,
     daysTogether,

@@ -42,9 +42,16 @@ router.post("/", requireAuth, upload.array("media", 6), async (req, res, next) =
       media
     });
 
+    const automationUser = req.user.toSafeProfile();
+
+    if (automationUser.partnerEmail) {
+      automationUser.accountEmail = automationUser.email;
+      automationUser.email = automationUser.partnerEmail;
+    }
+
     await triggerMemoryCreatedWebhook({
       type: "memory.created",
-      user: req.user.toSafeProfile(),
+      user: automationUser,
       memory
     });
 
