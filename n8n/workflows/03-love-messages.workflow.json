@@ -1,0 +1,119 @@
+{
+  "name": "Love Timeline - Love Messages",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "15 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "26e38f72-1dab-4ed0-bb95-3176f9380616",
+      "name": "Daily Trigger 9:15AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.LOVE_TIMELINE_BASE_URL + '/api/automation/love-messages' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-key",
+              "value": "={{ $env.LOVE_TIMELINE_AUTOMATION_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "21f79d77-c57d-4f3f-8608-80c138f884c4",
+      "name": "Fetch Messages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const messages = $json.messages || [];\n\nreturn messages.map((item) => ({\n  json: {\n    to: item.email,\n    subject: \"A message from your Love Timeline\",\n    html: `\n      <h2>Love Timeline</h2>\n      <p>${item.message}</p>\n      <p>You and ${item.partnerName} have shared ${item.daysTogether} days together.</p>\n    `\n  }\n}));"
+      },
+      "id": "8df2b072-c4a8-40dc-a9df-df35c9038e56",
+      "name": "Build Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "love-timeline@example.com",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "1602de80-2a35-45ad-a36b-c40ecf1b1f4a",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Trigger 9:15AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Messages": {
+      "main": [
+        [
+          {
+            "node": "Build Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Emails": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

@@ -1,0 +1,122 @@
+{
+  "name": "Love Timeline - Anniversary Reminders",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "7731b0fd-48cb-4444-a00a-b8726ab0cb7a",
+      "name": "Daily Trigger 9AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.LOVE_TIMELINE_BASE_URL + '/api/automation/anniversaries' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-key",
+              "value": "={{ $env.LOVE_TIMELINE_AUTOMATION_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"windowDays\": 7}",
+        "options": {}
+      },
+      "id": "e5732866-ec86-4f05-be89-ff1a5058f0a0",
+      "name": "Fetch Reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const reminders = $json.reminders || [];\n\nreturn reminders.map((reminder) => ({\n  json: {\n    to: reminder.email,\n    subject: `${reminder.years} year anniversary in ${reminder.daysUntil} day(s)`,\n    html: `\n      <h2>Upcoming anniversary</h2>\n      <p>${reminder.displayName}, your anniversary with ${reminder.partnerName} is coming up.</p>\n      <p><strong>${reminder.years} years together</strong></p>\n      <p>Date: ${new Date(reminder.anniversaryDate).toLocaleDateString()}</p>\n      <p>Only ${reminder.daysUntil} day(s) left.</p>\n    `\n  }\n}));"
+      },
+      "id": "3c4b5e80-cb4a-4e0d-8ea9-cf0432f9b585",
+      "name": "Build Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "love-timeline@example.com",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "5c06f77d-fbf8-439e-9377-756d84e70e81",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Trigger 9AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Reminders": {
+      "main": [
+        [
+          {
+            "node": "Build Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Emails": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

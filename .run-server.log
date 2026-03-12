@@ -1,0 +1,10 @@
+
+> love-timeline@1.0.0 start
+> npm run start --workspace server
+
+
+> love-timeline-server@1.0.0 start
+> node src/index.js
+
+Love Timeline API listening on port 5000
+^C^C

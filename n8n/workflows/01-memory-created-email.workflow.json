@@ -1,0 +1,107 @@
+{
+  "name": "Love Timeline - Memory Created Email",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "love-memory-created",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c5a3c9f4-0f4a-4ea3-a5f2-fc2a0b8cbf85",
+      "name": "Memory Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "love-memory-created"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body ?? $json;\nconst memory = payload.memory;\nconst user = payload.user;\n\nreturn [\n  {\n    json: {\n      to: user.email,\n      subject: `New memory added: ${memory.title}`,\n      html: `\n        <h2>Love Timeline</h2>\n        <p>${user.displayName}, a new memory was saved.</p>\n        <p><strong>${memory.title}</strong></p>\n        <p>${memory.description || \"No description provided.\"}</p>\n        <p>Date: ${new Date(memory.eventDate).toLocaleDateString()}</p>\n      `\n    }\n  }\n];"
+      },
+      "id": "93a4ef29-cf2e-4219-95e9-b4f8f63f3e12",
+      "name": "Prepare Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "love-timeline@example.com",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "48f4b7d3-9eea-4b67-b83f-0b5274fc1c6e",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true}",
+        "options": {}
+      },
+      "id": "20d5d2b6-b8af-4e7f-8f6c-26f8361e55f5",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Memory Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
